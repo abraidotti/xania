@@ -13,6 +13,7 @@
 struct AreaList;
 struct Configuration;
 struct DescriptorList;
+class DeathCounter;
 class EventBus;
 struct HelpList;
 struct Interpreter;
@@ -26,6 +27,7 @@ struct Mud {
     virtual DescriptorList &descriptors() = 0;
     // Where the engine emits the events in Events.hpp, and where code listens to them.
     virtual EventBus &events() = 0;
+    virtual DeathCounter &death_counter() = 0;
     virtual Interpreter &interpreter() = 0;
     virtual Logger &logger() = 0;
     virtual Bans &bans() = 0;

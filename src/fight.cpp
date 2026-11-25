@@ -1310,10 +1310,10 @@ void detach_injured_part(const Char *victim, std::optional<InjuredPart> opt_inju
 
 void raw_kill(Char *ch, Char *victim, std::optional<InjuredPart> opt_injured_part) {
     stop_fighting(victim, true);
-    victim->mud_.events().emit(Events::CharKilled{ch, victim});
+    const auto duel_in_progress = Duels::is_duel_in_progress(ch, victim);
+    victim->mud_.events().emit(Events::CharKilled{ch, victim, duel_in_progress});
     death_cry(victim);
     detach_injured_part(victim, opt_injured_part);
-    const auto duel_in_progress = Duels::is_duel_in_progress(ch, victim);
 
     if (!duel_in_progress)
         make_corpse(victim);

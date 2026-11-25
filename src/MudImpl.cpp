@@ -83,6 +83,8 @@ DescriptorList &MudImpl::descriptors() { return descriptors_; }
 
 EventBus &MudImpl::events() { return events_; }
 
+DeathCounter &MudImpl::death_counter() { return death_counter_; }
+
 Logger &MudImpl::logger() { return logger_; }
 
 Interpreter &MudImpl::interpreter() { return interpreter_; }

@@ -17,8 +17,10 @@
 #include "Columner.hpp"
 #include "CommFlag.hpp"
 #include "DamageType.hpp"
+#include "DeathCounter.hpp"
 #include "Descriptor.hpp"
 #include "DescriptorList.hpp"
+#include "EventBus.hpp"
 #include "FlagFormat.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
@@ -2660,4 +2662,19 @@ void do_smite(Char *ch, ArgParser args) {
         if (victim->is_npc() && victim->wait == 0 && victim->can_see(*wielded_obj))
             get_obj(victim, wielded_obj, nullptr);
     }
+}
+
+// Lists every listener on the event bus, in the order each event runs them (#16).
+void do_events(Char *ch) {
+    const auto &bus = ch->mud_.events();
+    ch->send_line("{:<16} {:>8}  {}", "Event", "Priority", "Listener");
+    for (const auto &listener : bus.listeners())
+        ch->send_line("{:<16} {:>8}  {}", listener.event, listener.priority, listener.name);
+    ch->send_line("Events dropped for being nested too deeply: {}.", bus.dropped());
+}
+
+// Deaths per area since boot, from the death counter (#16).
+void do_deaths(Char *ch) {
+    for (const auto &line : ch->mud_.death_counter().report())
+        ch->send_line("{}", line);
 }

@@ -90,12 +90,13 @@ struct CombatRound {
 };
 
 // raw_kill: victim has been killed by killer (who may be victim itself, or another char; never null). Emitted first,
-// while victim is still in the room where it died: before its death cry, corpse and extraction. Mob programs' death
-// trigger.
+// while victim is still in the room where it died: before its death cry, corpse and extraction. In a duel, the loser
+// "dies" but keeps everything and stays where they are. Mob programs' death trigger.
 struct CharKilled {
     static constexpr std::string_view name = "CharKilled";
     Char *killer;
     Char *victim;
+    bool duel;
 };
 
 // mobile_update: the turn of a mob that isn't charmed, asleep or busy, in an area with players in it, after its special

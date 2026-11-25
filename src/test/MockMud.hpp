@@ -5,6 +5,7 @@
 /*************************************************************************/
 #pragma once
 
+#include "DeathCounter.hpp"
 #include "EventBus.hpp"
 #include "Mud.hpp"
 
@@ -36,7 +37,9 @@ struct MockMud : public trompeloeil::mock_interface<Mud> {
 
     // A real bus, not a mock: code under test emits on it, and a test can listen to check what was emitted.
     EventBus &events() override { return events_; }
+    DeathCounter &death_counter() override { return death_counter_; }
     EventBus events_;
+    DeathCounter death_counter_{events_};
 };
 
 }

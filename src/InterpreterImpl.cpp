@@ -344,6 +344,8 @@ Interpreter::Impl::Impl() {
     add_command("invis", do_invis, Position::Type::Dead, IM, CommandLogLevel::Normal, false);
     add_command("log", do_log, Position::Type::Dead, L1, CommandLogLevel::Always);
     add_command("memory", do_memory, Position::Type::Dead, IM);
+    add_command("events", do_events, Position::Type::Dead, IM);
+    add_command("deaths", do_deaths, Position::Type::Dead, IM);
     add_command("mwhere", do_mwhere, Position::Type::Dead, IM);
     add_command("peace", do_peace, Position::Type::Dead, L5);
     /* Death's commands */
