@@ -1558,6 +1558,30 @@ The 'Perms' line shows permanently allocated memory blocks.  There is no limit
 on the number and size of these blocks.
 ~
 
+92 EVENTS~
+Syntax: events
+
+Events lists every listener on the mud's event bus: the engine announces what
+happens (a char arrives, speaks, dies...) as events, and listeners such as the
+mob program triggers and the death counter react to them. For each listener it
+shows the event, its priority (lower runs first) and its name.
+
+The last line counts events that were dropped because events were nested too
+deeply, which only a looping chain of mob programs should cause.
+
+See also: DEATHS
+~
+
+92 DEATHS~
+Syntax: deaths
+
+Deaths lists, for each area where anyone has died since the mud booted, how
+many players and how many mobs died there, most deaths first. Losing a duel
+doesn't count.
+
+See also: EVENTS
+~
+
 96 VNUM~
 Syntax: vnum <name>
 	vnum <obj or mob> <name>
