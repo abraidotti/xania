@@ -201,13 +201,8 @@ void aggr_update() {
             continue;
         }
         /* MOBProgram Act trigger */
-        if (wch->is_npc() && !wch->mpact.empty() && wch->in_room->area->occupied()) {
-            for (const auto &mpact : wch->mpact) {
-                MProg::wordlist_check(mpact.act_message_trigger(), wch, mpact.character(), mpact.object(),
-                                      mpact.target(), MProg::TypeFlag::Act);
-            }
-            wch->mpact.clear();
-        }
+        if (wch->is_npc() && !wch->mpact.empty() && wch->in_room->area->occupied())
+            MProg::run_queued_acts(wch);
 
         if (wch->is_npc() || wch->level >= LEVEL_IMMORTAL || wch->in_room == nullptr
             || wch->in_room->area->empty_since_last_reset())
