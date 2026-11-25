@@ -33,6 +33,7 @@
 #include <fmt/ranges.h>
 
 #include <string>
+#include <utility>
 
 using namespace std::literals;
 
@@ -78,6 +79,16 @@ void act_trigger(std::string_view buf, Char *mob, const Char *ch, const Object *
     if (mob->is_npc() && check_enum_bit(mob->mobIndex->progtypes, TypeFlag::Act)) {
         mob->mpact.emplace_back(std::string(buf), ch, obj, target);
     }
+}
+
+void run_queued_acts(Char *mob) {
+    // Take the queue first: the programs can act, and act_trigger() then appends to mob->mpact. Iterating mob->mpact
+    // itself read freed memory once an append reallocated it.
+    const auto queued = std::exchange(mob->mpact, {});
+    for (const auto &mpact : queued)
+        wordlist_check(mpact.act_message_trigger(), mob, mpact.character(), mpact.object(), mpact.target(),
+                       TypeFlag::Act);
+    mob->mpact.clear();
 }
 
 void bribe_trigger(Char *mob, Char *ch, int amount) {
