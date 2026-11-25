@@ -46,7 +46,7 @@ void tornado_teleport(Char *ch, Char *victim) {
 
     act("$n is consumed by the tornado and vanishes!", victim);
     char_from_room(victim);
-    char_to_room(victim, room);
+    char_to_room(victim, room, MoveCause::Magic);
     victim->send_line("...you appear to have been blown to another part of Xania!");
 
     if (!ch->riding) {

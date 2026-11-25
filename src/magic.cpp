@@ -2400,7 +2400,7 @@ void spell_gate(int sn, int level, Char *ch, const SpellTarget &spell_target) {
     act("$n steps through a gate and vanishes.", ch);
     ch->send_line("You step through a gate and vanish.");
     char_from_room(ch);
-    char_to_room(ch, victim->in_room);
+    char_to_room(ch, victim->in_room, MoveCause::Magic);
 
     act("$n has arrived through a gate.", ch);
     look_auto(ch);
@@ -2409,7 +2409,7 @@ void spell_gate(int sn, int level, Char *ch, const SpellTarget &spell_target) {
         act("$n steps through a gate and vanishes.", ch->pet);
         ch->pet->send_to("You step through a gate and vanish.\n\r");
         char_from_room(ch->pet);
-        char_to_room(ch->pet, victim->in_room);
+        char_to_room(ch->pet, victim->in_room, MoveCause::Magic);
         act("$n has arrived through a gate.", ch->pet);
         look_auto(ch->pet);
     }
@@ -3349,7 +3349,7 @@ void spell_summon(int sn, int level, Char *ch, const SpellTarget &spell_target) 
         unride_char(victim, victim->riding);
     act("$n disappears suddenly.", victim);
     char_from_room(victim);
-    char_to_room(victim, ch->in_room);
+    char_to_room(victim, ch->in_room, MoveCause::Magic);
     act("$n arrives suddenly.", victim);
     act("$n has summoned you!", ch, nullptr, victim, To::Vict);
     look_auto(victim);
@@ -3381,7 +3381,7 @@ void spell_teleport(int sn, int level, Char *ch, const SpellTarget &spell_target
 
     act("$n vanishes!", victim);
     char_from_room(victim);
-    char_to_room(victim, room);
+    char_to_room(victim, room, MoveCause::Magic);
     if (!ch->riding) {
         act("$n slowly fades into existence.", victim);
     } else {
@@ -3464,9 +3464,9 @@ void spell_word_of_recall(int sn, int level, Char *ch, const SpellTarget &spell_
     if (victim->riding)
         char_from_room(victim->riding);
     char_from_room(victim);
-    char_to_room(victim, location);
+    char_to_room(victim, location, MoveCause::Recall);
     if (victim->riding)
-        char_to_room(victim->riding, location);
+        char_to_room(victim->riding, location, MoveCause::Recall);
     if (victim->invis_level < HERO)
         act("$n appears in the room.", victim);
     look_auto(victim);
@@ -3766,10 +3766,10 @@ void spell_teleport_object(int sn, int level, Char *ch, const SpellTarget &spell
         act("You feel a brief presence in the room.", victim);
         old_room = ch->in_room;
         char_from_room(ch);
-        char_to_room(ch, victim->in_room);
+        char_to_room(ch, victim->in_room, MoveCause::Visit);
         ch->try_give_item_to(object, victim);
         char_from_room(ch);
-        char_to_room(ch, old_room);
+        char_to_room(ch, old_room, MoveCause::Visit);
     } else {
         ch->try_give_item_to(object, victim);
     }

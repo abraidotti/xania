@@ -195,12 +195,12 @@ Char *CharUpgrader::simulate_login() {
             desc_.login_time(*parsed_time);
         }
         if (ch->in_room) {
-            char_to_room(ch, ch->in_room);
+            char_to_room(ch, ch->in_room, MoveCause::Login);
         } else {
-            char_to_room(ch, get_room(Rooms::MidgaardTemple, mud_.logger()));
+            char_to_room(ch, get_room(Rooms::MidgaardTemple, mud_.logger()), MoveCause::Login);
         }
         if (ch->pet) {
-            char_to_room(ch->pet, ch->in_room);
+            char_to_room(ch->pet, ch->in_room, MoveCause::Login);
         }
         return ch;
     } else

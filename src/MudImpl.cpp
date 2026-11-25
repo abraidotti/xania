@@ -9,8 +9,10 @@
 #include "AreaList.hpp"
 #include "Ban.hpp"
 #include "CommFlag.hpp"
+#include "Events.hpp"
 #include "Help.hpp"
 #include "Logging.hpp"
+#include "MProg.hpp"
 #include "Note.hpp"
 #include "Object.hpp"
 #include "ObjectIndex.hpp"
@@ -49,7 +51,7 @@ extern ObjectIndex *get_obj_index(int vnum, const Logger &logger);
 extern void obj_to_char(Object *obj, Char *ch);
 extern int get_weapon_sn(Char *ch);
 extern Room *get_room(int vnum, const Logger &logger);
-extern void char_to_room(Char *ch, Room *room);
+extern void char_to_room(Char *ch, Room *room, MoveCause cause);
 extern void announce(std::string_view buf, const Char *ch);
 extern void look_auto(Char *ch);
 extern std::string describe_fight_condition(const Char &victim);
@@ -71,11 +73,15 @@ MudImpl::MudImpl()
     : logger_{descriptors_}, bans_{config_.ban_file()}, notes_{config_.notes_file()}, main_loop_running_(true),
       wizlock_(false), newlock_(false), control_fd_{std::nullopt}, boot_time_{std::chrono::system_clock::now()},
       current_time_{std::chrono::system_clock::now()}, current_tick_{TimeInfoData(Clock::now())},
-      max_players_today_(0) {}
+      max_players_today_(0) {
+    listeners_ = MProg::listen(events_);
+}
 
 Configuration &MudImpl::config() { return config_; }
 
 DescriptorList &MudImpl::descriptors() { return descriptors_; }
+
+EventBus &MudImpl::events() { return events_; }
 
 Logger &MudImpl::logger() { return logger_; }
 
@@ -1003,7 +1009,7 @@ void MudImpl::nanny(Descriptor *d, std::string_view argument) {
 
             ch->pcdata->learned[get_weapon_sn(ch)] = NewbieWeaponSkillPct;
 
-            char_to_room(ch, get_room(Rooms::MudschoolEntrance, logger_));
+            char_to_room(ch, get_room(Rooms::MudschoolEntrance, logger_), MoveCause::Login);
             ch->send_line("");
             do_help(ch, "NEWBIE INFO");
             ch->send_line("");
@@ -1014,11 +1020,11 @@ void MudImpl::nanny(Descriptor *d, std::string_view argument) {
             ch->set_extra(CharExtraFlag::TipWizard);
 
         } else if (ch->in_room) {
-            char_to_room(ch, ch->in_room);
+            char_to_room(ch, ch->in_room, MoveCause::Login);
         } else if (ch->is_immortal()) {
-            char_to_room(ch, get_room(Rooms::Chat, logger_));
+            char_to_room(ch, get_room(Rooms::Chat, logger_), MoveCause::Login);
         } else {
-            char_to_room(ch, get_room(Rooms::MidgaardTemple, logger_));
+            char_to_room(ch, get_room(Rooms::MidgaardTemple, logger_), MoveCause::Login);
         }
 
         announce(fmt::format("|W### |P{}|W has entered the game.|w", ch->name), ch);
@@ -1035,7 +1041,7 @@ void MudImpl::nanny(Descriptor *d, std::string_view argument) {
         }
 
         if (ch->pet) {
-            char_to_room(ch->pet, ch->in_room);
+            char_to_room(ch->pet, ch->in_room, MoveCause::Login);
             act("|P$n|W has entered the game.", ch->pet);
         }
         if (const auto num_unread = ch->mud_.notes().num_unread(*ch); num_unread > 0) {

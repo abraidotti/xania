@@ -5,15 +5,21 @@
 /*************************************************************************/
 #pragma once
 
+#include "EventBus.hpp"
 #include "MProgTriggerCtx.hpp"
 
 #include <optional>
+#include <vector>
 
 class ArgParser;
 
 // The primary header for the mud to interface with the Mob Prog features
 // mainly via "triggers" that fire when specific events occur.
 namespace MProg {
+
+// Subscribes the triggers below to the engine's events (Events.hpp). They run for as long as the subscriptions are
+// kept.
+[[nodiscard]] std::vector<EventBus::Subscription> listen(EventBus &bus);
 
 // If either a Char or Object are non null, map them to the MProg Target variant.
 Target to_target(const Char *ch, const Object *obj);

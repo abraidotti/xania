@@ -19,11 +19,14 @@
 #include "DamageType.hpp"
 #include "Descriptor.hpp"
 #include "DescriptorList.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "ExitFlag.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
 #include "MProg.hpp"
 #include "MProgTypeFlag.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectType.hpp"
 #include "PlayerActFlag.hpp"
@@ -255,7 +258,7 @@ void mobile_update() {
             continue;
 
         if (ch->in_room->area->occupied()) {
-            MProg::random_trigger(ch);
+            ch->mud_.events().emit(Events::MobUpdate{ch});
             /* If ch dies or changes
                position due to it's random
                trigger continue - Kahn */
@@ -604,12 +607,12 @@ void move_active_char_from_limbo(Char *ch) {
 
     ch->idle_timer_ticks = 0;
     char_from_room(ch);
-    char_to_room(ch, ch->was_in_room);
+    char_to_room(ch, ch->was_in_room, MoveCause::Limbo);
     ch->was_in_room = nullptr;
     act("$n has returned from the void.", ch);
     if (ch->pet) { /* move pets too */
         char_from_room(ch->pet);
-        char_to_room(ch->pet, ch->in_room);
+        char_to_room(ch->pet, ch->in_room, MoveCause::Limbo);
         ch->pet->was_in_room = nullptr;
         act("$n has returned from the void.", ch->pet);
     }
@@ -631,14 +634,14 @@ void move_idle_char_to_limbo(Char *ch) {
             if (ch->level > 1)
                 save_char_obj(ch);
             char_from_room(ch);
-            char_to_room(ch, get_room(Rooms::Limbo, logger));
+            char_to_room(ch, get_room(Rooms::Limbo, logger), MoveCause::Limbo);
             if (ch->pet) { /* move pets too */
                 if (ch->pet->fighting)
                     stop_fighting(ch->pet, true);
                 act("$n flickers and phases out", ch->pet);
                 ch->pet->was_in_room = ch->pet->in_room;
                 char_from_room(ch->pet);
-                char_to_room(ch->pet, get_room(Rooms::Limbo, logger));
+                char_to_room(ch->pet, get_room(Rooms::Limbo, logger), MoveCause::Limbo);
             }
         }
     }

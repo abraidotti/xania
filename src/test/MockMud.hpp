@@ -5,6 +5,7 @@
 /*************************************************************************/
 #pragma once
 
+#include "EventBus.hpp"
 #include "Mud.hpp"
 
 #include <catch2/catch_test_macros.hpp>
@@ -32,6 +33,10 @@ struct MockMud : public trompeloeil::mock_interface<Mud> {
     IMPLEMENT_CONST_MOCK0(max_players_today);
     IMPLEMENT_MOCK0(reset_max_players_today);
     IMPLEMENT_MOCK0(send_tips);
+
+    // A real bus, not a mock: code under test emits on it, and a test can listen to check what was emitted.
+    EventBus &events() override { return events_; }
+    EventBus events_;
 };
 
 }

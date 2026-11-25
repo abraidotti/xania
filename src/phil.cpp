@@ -90,7 +90,7 @@ bool doSleepActions(Char *ch, Room *home) {
             act("$n tiredly waves $s hands in a complicated pattern and is gone.", ch);
             act("You transport yourself back home.", ch, nullptr, nullptr, To::Char);
             char_from_room(ch);
-            char_to_room(ch, home);
+            char_to_room(ch, home, MoveCause::Special);
             act("$n appears in a confused whirl of mist.", ch);
         }
         return true;

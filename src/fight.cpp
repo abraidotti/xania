@@ -19,6 +19,8 @@
 #include "DamageMessages.hpp"
 #include "DamageTolerance.hpp"
 #include "DamageType.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "Exit.hpp"
 #include "ExitFlag.hpp"
 #include "Format.hpp"
@@ -26,9 +28,9 @@
 #include "InjuredPart.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
-#include "MProg.hpp"
 #include "Materials.hpp"
 #include "MorphologyFlag.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
 #include "ObjectIndex.hpp"
@@ -115,8 +117,7 @@ void violence_update() {
         if ((victim = ch->fighting) == nullptr)
             continue;
 
-        MProg::hitprcnt_trigger(ch, victim);
-        MProg::fight_trigger(ch, victim);
+        ch->mud_.events().emit(Events::CombatRound{ch, victim});
         check_assist(ch, victim);
     }
 }
@@ -1309,7 +1310,7 @@ void detach_injured_part(const Char *victim, std::optional<InjuredPart> opt_inju
 
 void raw_kill(Char *ch, Char *victim, std::optional<InjuredPart> opt_injured_part) {
     stop_fighting(victim, true);
-    MProg::death_trigger(victim);
+    victim->mud_.events().emit(Events::CharKilled{ch, victim});
     death_cry(victim);
     detach_injured_part(victim, opt_injured_part);
     const auto duel_in_progress = Duels::is_duel_in_progress(ch, victim);
