@@ -21,6 +21,7 @@
 #include "EventBus.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
+#include "MProg.hpp"
 #include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
@@ -593,6 +594,7 @@ void extract_obj(Object *obj) {
 
     for (auto *obj_content : obj->contains)
         extract_obj(obj_content);
+    MProg::forget_queued_acts_about(obj);
     reapable_objects.push_back(obj); // See collect_all_garbage()
 }
 
@@ -649,6 +651,7 @@ void extract_char(Char *ch, bool delete_from_world) {
         ch->desc = nullptr;
     }
 
+    MProg::forget_queued_acts_about(ch);
     ch->extracted = true;
     reapable_chars.push_back(ch); // See collect_all_garbage()
 }
