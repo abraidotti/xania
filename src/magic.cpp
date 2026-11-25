@@ -17,11 +17,14 @@
 #include "Class.hpp"
 #include "DamageTolerance.hpp"
 #include "DamageType.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "FlagFormat.hpp"
 #include "Format.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
 #include "Materials.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
 #include "ObjectIndex.hpp"
@@ -2404,6 +2407,7 @@ void spell_gate(int sn, int level, Char *ch, const SpellTarget &spell_target) {
 
     act("$n has arrived through a gate.", ch);
     look_auto(ch);
+    ch->mud_.events().emit(Events::CharArrived{ch, MoveCause::Magic});
 
     if (gate_pet && (ch->pet->in_room != ch->in_room)) {
         act("$n steps through a gate and vanishes.", ch->pet);
@@ -2412,6 +2416,7 @@ void spell_gate(int sn, int level, Char *ch, const SpellTarget &spell_target) {
         char_to_room(ch->pet, victim->in_room, MoveCause::Magic);
         act("$n has arrived through a gate.", ch->pet);
         look_auto(ch->pet);
+        ch->mud_.events().emit(Events::CharArrived{ch->pet, MoveCause::Magic});
     }
 }
 
@@ -3353,6 +3358,7 @@ void spell_summon(int sn, int level, Char *ch, const SpellTarget &spell_target) 
     act("$n arrives suddenly.", victim);
     act("$n has summoned you!", ch, nullptr, victim, To::Vict);
     look_auto(victim);
+    ch->mud_.events().emit(Events::CharArrived{victim, MoveCause::Magic});
 }
 
 void spell_teleport(int sn, int level, Char *ch, const SpellTarget &spell_target) {
@@ -3391,6 +3397,7 @@ void spell_teleport(int sn, int level, Char *ch, const SpellTarget &spell_target
         fallen_off_mount(ch);
     } /* end ride check */
     look_auto(victim);
+    ch->mud_.events().emit(Events::CharArrived{victim, MoveCause::Magic});
 }
 
 void spell_ventriloquate(int sn, int level, Char *ch, const SpellTarget &spell_target) {
@@ -3470,6 +3477,7 @@ void spell_word_of_recall(int sn, int level, Char *ch, const SpellTarget &spell_
     if (victim->invis_level < HERO)
         act("$n appears in the room.", victim);
     look_auto(victim);
+    ch->mud_.events().emit(Events::CharArrived{victim, MoveCause::Recall});
     if (ch->pet != nullptr)
         do_recall(ch->pet, ArgParser(""));
 }

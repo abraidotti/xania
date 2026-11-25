@@ -1032,6 +1032,7 @@ void MudImpl::nanny(Descriptor *d, std::string_view argument) {
         announce(fmt::format("|W### |P{}|W has entered the game.|w", ch->name), ch);
         act("|P$n|W has entered the game.", ch);
         look_auto(ch);
+        events_.emit(Events::CharArrived{ch, MoveCause::Login});
 
         /* Rohan: code to increase the player count if needed - it was only
            updated if a player did count */

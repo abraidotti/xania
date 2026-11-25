@@ -78,3 +78,11 @@ TEST_CASE("mob program triggers listen to their events") {
     subscriptions.clear();
     CHECK(bus.listeners().empty());
 }
+
+TEST_CASE("which arrivals greet") {
+    using enum MoveCause;
+    for (const auto cause : {Walk, Portal, Recall, Magic})
+        CHECK(MProg::greets(cause));
+    for (const auto cause : {Transfer, Visit, Created, Login, Limbo, Death, Special})
+        CHECK_FALSE(MProg::greets(cause));
+}

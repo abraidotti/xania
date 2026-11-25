@@ -6,6 +6,7 @@
 #pragma once
 
 #include "EventBus.hpp"
+#include "Events.hpp"
 #include "MProgTriggerCtx.hpp"
 
 #include <optional>
@@ -20,6 +21,10 @@ namespace MProg {
 // Subscribes the triggers below to the engine's events (Events.hpp). They run for as long as the subscriptions are
 // kept.
 [[nodiscard]] std::vector<EventBus::Subscription> listen(EventBus &bus);
+// Whether an arrival of this kind runs the greet programs of the mobs in the room (and the arriving mob's own entry
+// program): walking in, a portal, recall, and magic (gate, summon, teleport, a tornado). Not an immortal's goto or
+// transfer, nor entering the game. See Events::CharArrived.
+[[nodiscard]] bool greets(MoveCause cause);
 
 // If either a Char or Object are non null, map them to the MProg Target variant.
 Target to_target(const Char *ch, const Object *obj);

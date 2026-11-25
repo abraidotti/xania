@@ -41,11 +41,14 @@ struct CharEnteredRoom {
     MoveCause cause;
 };
 
-// A walk (move_char) or a step through a portal (do_enter) has finished: ch has arrived, looked, and its followers have
-// followed (each with their own CharArrived first). Mob programs' entry and greet triggers run here.
+// An arrival ch sees has finished: ch is in the room and has looked (and after a walk, its followers have followed,
+// each with their own CharArrived first). Emitted for walks, portals, recall, gate, summon, teleport, a tornado, an
+// immortal's goto or transfer, and entering the game; not for at, mpat, mpgoto or mptransfer, which don't look.
+// Mob programs' entry and greet triggers run here, for the causes MProg::greets() names.
 struct CharArrived {
     static constexpr std::string_view name = "CharArrived";
     Char *ch;
+    MoveCause cause;
 };
 
 // act() sent message to `to` from a call that allows mob triggers (MobTrig::Yes). Mob programs' act trigger queues it.

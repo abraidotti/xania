@@ -46,6 +46,8 @@ std::vector<EventBus::Subscription> listen(EventBus &bus) {
     using namespace Events;
     std::vector<EventBus::Subscription> subscriptions;
     subscriptions.push_back(bus.on<CharArrived>("mob programs: entry, greet", [](const CharArrived &e) {
+        if (!greets(e.cause))
+            return;
         entry_trigger(e.ch);
         greet_trigger(e.ch);
     }));
@@ -66,6 +68,16 @@ std::vector<EventBus::Subscription> listen(EventBus &bus) {
     subscriptions.push_back(
         bus.on<MobUpdate>("mob programs: random", [](const MobUpdate &e) { random_trigger(e.mob); }));
     return subscriptions;
+}
+
+bool greets(const MoveCause cause) {
+    switch (cause) {
+    case MoveCause::Walk:
+    case MoveCause::Portal:
+    case MoveCause::Recall:
+    case MoveCause::Magic: return true;
+    default: return false;
+    }
 }
 
 Target to_target(const Char *ch, const Object *obj) {

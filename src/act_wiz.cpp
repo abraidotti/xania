@@ -21,11 +21,13 @@
 #include "Descriptor.hpp"
 #include "DescriptorList.hpp"
 #include "EventBus.hpp"
+#include "Events.hpp"
 #include "FlagFormat.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
 #include "MProg.hpp"
 #include "MobIndexData.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
 #include "ObjectIndex.hpp"
@@ -399,6 +401,7 @@ void transfer(const Char *imm, Char *victim, Room *location) {
     if (imm != victim)
         act("$n has transferred you.", imm, nullptr, victim, To::Vict);
     look_auto(victim);
+    victim->mud_.events().emit(Events::CharArrived{victim, MoveCause::Transfer});
     imm->send_line("Ok.");
 }
 
@@ -489,6 +492,7 @@ void do_goto(Char *ch, ArgParser args) {
     }
 
     look_auto(ch);
+    ch->mud_.events().emit(Events::CharArrived{ch, MoveCause::Transfer});
 }
 
 void do_stat(Char *ch, ArgParser args) {
