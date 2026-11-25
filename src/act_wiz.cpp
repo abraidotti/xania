@@ -437,22 +437,7 @@ void do_at(Char *ch, ArgParser args) {
         ch->send_line("Syntax: at <location> <command>");
         return;
     }
-    auto *original = ch->in_room;
-    char_from_room(ch);
-    char_to_room(ch, location);
-    ch->mud_.interpreter().interpret(ch, command);
-
-    /*
-     * See if 'ch' still exists before continuing!
-     * Handles 'at XXXX quit' case.
-     */
-    for (auto &&wch : char_list) {
-        if (wch.get() == ch) {
-            char_from_room(ch);
-            char_to_room(ch, original);
-            break;
-        }
-    }
+    run_at(ch, location, [&] { ch->mud_.interpreter().interpret(ch, command); });
 }
 
 void do_goto(Char *ch, ArgParser args) {
