@@ -226,7 +226,7 @@ bool spec_DEATH(Char *ch) {
             return false;
         act("$n disappears through a gate in search of more souls.", ch);
         char_from_room(ch);
-        char_to_room(ch, home);
+        char_to_room(ch, home, MoveCause::Special);
         act("$n returns home in search of a nice cup of tea.", ch);
         return true;
     }
@@ -234,7 +234,7 @@ bool spec_DEATH(Char *ch) {
     if ((lowest_person->in_room != ch->in_room) && (lowest_person->is_pos_fighting())) {
         act("$n disappears through a gate seeking to usher souls elsewhere.", ch);
         char_from_room(ch);
-        char_to_room(ch, lowest_person->in_room);
+        char_to_room(ch, lowest_person->in_room, MoveCause::Special);
         act("There is a shimmering light and $n appears through a gate.", ch);
         /* Check if Phil needs rescuing */
         if (lowest_person == phil) {
@@ -243,8 +243,8 @@ bool spec_DEATH(Char *ch) {
                 To::Room);
             char_from_room(ch);
             char_from_room(phil);
-            char_to_room(ch, home);
-            char_to_room(phil, home);
+            char_to_room(ch, home, MoveCause::Special);
+            char_to_room(phil, home, MoveCause::Special);
             act("$n appears through a gate holding a frightened-looking meerkat.", ch);
         }
         return true;
@@ -261,7 +261,7 @@ bool spec_DEATH(Char *ch) {
         act("$n sighs as another soul slips through his fingers.", ch);
         act("$n disappears through a gate to seek souls elsewhere.", ch);
         char_from_room(ch);
-        char_to_room(ch, home);
+        char_to_room(ch, home, MoveCause::Special);
         act("$n returns home after a hard day's work.", ch);
     }
 
@@ -651,8 +651,8 @@ bool spec_executioner(Char *ch) {
     ch->yell(fmt::format("{} is a {}!  PROTECT THE INNOCENT!  MORE BLOOOOD!!!", victim->name,
                          victim->is_player_killer() ? "KILLER" : "THIEF"));
     multi_hit(ch, victim);
-    char_to_room(create_mobile(get_mob_index(Mobiles::Cityguard, logger), ch->mud_), ch->in_room);
-    char_to_room(create_mobile(get_mob_index(Mobiles::Cityguard, logger), ch->mud_), ch->in_room);
+    char_to_room(create_mobile(get_mob_index(Mobiles::Cityguard, logger), ch->mud_), ch->in_room, MoveCause::Created);
+    char_to_room(create_mobile(get_mob_index(Mobiles::Cityguard, logger), ch->mud_), ch->in_room, MoveCause::Created);
     return true;
 }
 

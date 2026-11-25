@@ -17,8 +17,10 @@
 #include "Columner.hpp"
 #include "CommFlag.hpp"
 #include "DamageType.hpp"
+#include "DeathCounter.hpp"
 #include "Descriptor.hpp"
 #include "DescriptorList.hpp"
+#include "EventBus.hpp"
 #include "FlagFormat.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
@@ -392,7 +394,7 @@ void transfer(const Char *imm, Char *victim, Room *location) {
         unride_char(victim, victim->riding);
     act("$n disappears in a mushroom cloud.", victim);
     char_from_room(victim);
-    char_to_room(victim, location);
+    char_to_room(victim, location, MoveCause::Transfer);
     act("$n arrives from a puff of smoke.", victim);
     if (imm != victim)
         act("$n has transferred you.", imm, nullptr, victim, To::Vict);
@@ -471,10 +473,10 @@ void do_goto(Char *ch, ArgParser args) {
     }
 
     char_from_room(ch);
-    char_to_room(ch, location);
+    char_to_room(ch, location, MoveCause::Transfer);
     if (ch->pet) {
         char_from_room(ch->pet);
-        char_to_room(ch->pet, location);
+        char_to_room(ch->pet, location, MoveCause::Transfer);
     }
 
     for (auto *rch : ch->in_room->people) {
@@ -1276,7 +1278,7 @@ void do_clone(Char *ch, ArgParser args) {
                 cloned_obj->worn_loc = carried->worn_loc;
             }
         }
-        char_to_room(cloned_mob, ch->in_room);
+        char_to_room(cloned_mob, ch->in_room, MoveCause::Created);
         act("$n has created $N.", ch, nullptr, cloned_mob, To::Room);
         act("You clone $N.", ch, nullptr, cloned_mob, To::Char);
     } else {
@@ -1297,7 +1299,7 @@ void do_mload(Char *ch, ArgParser args) {
     }
 
     auto *victim = create_mobile(mob_index, ch->mud_);
-    char_to_room(victim, ch->in_room);
+    char_to_room(victim, ch->in_room, MoveCause::Created);
     act("$n has created $N!", ch, nullptr, victim, To::Room);
     ch->send_line("Ok.");
 }
@@ -2660,4 +2662,19 @@ void do_smite(Char *ch, ArgParser args) {
         if (victim->is_npc() && victim->wait == 0 && victim->can_see(*wielded_obj))
             get_obj(victim, wielded_obj, nullptr);
     }
+}
+
+// Lists every listener on the event bus, in the order each event runs them (#16).
+void do_events(Char *ch) {
+    const auto &bus = ch->mud_.events();
+    ch->send_line("{:<16} {:>8}  {}", "Event", "Priority", "Listener");
+    for (const auto &listener : bus.listeners())
+        ch->send_line("{:<16} {:>8}  {}", listener.event, listener.priority, listener.name);
+    ch->send_line("Events dropped for being nested too deeply: {}.", bus.dropped());
+}
+
+// Deaths per area since boot, from the death counter (#16).
+void do_deaths(Char *ch) {
+    for (const auto &line : ch->mud_.death_counter().report())
+        ch->send_line("{}", line);
 }

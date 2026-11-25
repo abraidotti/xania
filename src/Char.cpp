@@ -12,10 +12,12 @@
 #include "Class.hpp"
 #include "CommFlag.hpp"
 #include "DescriptorList.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "FlagFormat.hpp"
 #include "Logging.hpp"
-#include "MProg.hpp"
 #include "MorphologyFlag.hpp"
+#include "Mud.hpp"
 #include "Note.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
@@ -402,7 +404,7 @@ void Char::yell(std::string_view exclamation) const {
 void Char::say(std::string_view message) {
     ::act("$n|w says '$T|w'", this, nullptr, message, To::Room);
     ::act("You say '$T|w'", this, nullptr, message, To::Char);
-    MProg::speech_trigger(message, this);
+    mud_.events().emit(Events::CharSpoke{this, message});
 }
 
 bool Char::is_player_killer() const noexcept { return is_pc() && check_enum_bit(act, PlayerActFlag::PlrKiller); }
@@ -572,7 +574,7 @@ void Char::try_give_item_to(Object *object, Char *victim) {
     ::act("You give $p to $N.", this, object, victim, To::Char, MobTrig::No);
 
     handle_corpse_summoner(this, victim, object);
-    MProg::give_trigger(victim, this, object);
+    mud_.events().emit(Events::ObjectGiven{this, victim, object});
 }
 
 std::string_view Char::describe(const Char &to_describe) const noexcept {

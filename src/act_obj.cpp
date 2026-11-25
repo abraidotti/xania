@@ -15,10 +15,12 @@
 #include "CharActFlag.hpp"
 #include "CommFlag.hpp"
 #include "ContainerFlag.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
-#include "MProg.hpp"
 #include "Materials.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
 #include "ObjectIndex.hpp"
@@ -969,7 +971,7 @@ void do_give_coins(Char *ch, std::string_view num_coins, ArgParser args) {
     act(fmt::format("$n gives you {} gold.", amount), ch, nullptr, victim, To::Vict);
     act("$n gives $N some gold.", ch, nullptr, victim, To::NotVict);
     act(fmt::format("You give $N {} gold.", amount), ch, nullptr, victim, To::Char);
-    MProg::bribe_trigger(victim, ch, amount);
+    ch->mud_.events().emit(Events::GoldGiven{ch, victim, amount});
 }
 }
 
@@ -1892,7 +1894,7 @@ void do_buy(Char *ch, ArgParser args) {
 
         pet->description = fmt::format("{}A neck tag says 'I belong to {}'.", pet->description, ch->name);
 
-        char_to_room(pet, ch->in_room);
+        char_to_room(pet, ch->in_room, MoveCause::Created);
         add_follower(pet, ch);
         pet->leader = ch;
         ch->pet = pet;

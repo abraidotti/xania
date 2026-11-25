@@ -15,10 +15,12 @@
 #include "CharActFlag.hpp"
 #include "Class.hpp"
 #include "ContainerFlag.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "Exit.hpp"
 #include "ExitFlag.hpp"
 #include "Interpreter.hpp"
-#include "MProg.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectType.hpp"
 #include "PlayerActFlag.hpp"
@@ -199,7 +201,7 @@ void move_char(Char *ch, Direction direction) {
     }
 
     char_from_room(ch);
-    char_to_room(ch, to_room);
+    char_to_room(ch, to_room, MoveCause::Walk);
 
     if (!ch->is_aff_sneak() && (ch->is_npc() || !ch->is_wizinvis() || !ch->is_prowlinvis())) {
         if (ch->ridden_by == nullptr) {
@@ -234,8 +236,7 @@ void move_char(Char *ch, Direction direction) {
         }
     }
 
-    MProg::entry_trigger(ch);
-    MProg::greet_trigger(ch);
+    ch->mud_.events().emit(Events::CharArrived{ch});
 }
 
 void do_enter(Char *ch, std::string_view argument) {
@@ -307,7 +308,7 @@ void do_enter(Char *ch, std::string_view argument) {
                     act("$n steps through a portal and vanishes.", ch);
                     ch->send_line("You step through a portal and vanish.");
                     char_from_room(ch);
-                    char_to_room(ch, obj->destination);
+                    char_to_room(ch, obj->destination, MoveCause::Portal);
                     act("$n has arrived through a portal.", ch);
                     look_auto(ch);
 
@@ -334,8 +335,7 @@ void do_enter(Char *ch, std::string_view argument) {
                         }
                     }
 
-                    MProg::entry_trigger(ch);
-                    MProg::greet_trigger(ch);
+                    ch->mud_.events().emit(Events::CharArrived{ch});
 
                     return;
                 } else {
@@ -999,7 +999,7 @@ void do_recall(Char *ch, ArgParser args) {
     if (!check_enum_bit(ch->act, PlayerActFlag::PlrWizInvis))
         act("$n disappears.", ch);
     char_from_room(ch);
-    char_to_room(ch, location);
+    char_to_room(ch, location, MoveCause::Recall);
     if (!check_enum_bit(ch->act, PlayerActFlag::PlrWizInvis))
         act("$n appears in the room.", ch);
 

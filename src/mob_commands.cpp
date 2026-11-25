@@ -217,7 +217,7 @@ void do_mpmload(Char *ch, ArgParser args) {
         return;
     }
     auto *victim = create_mobile(mob_index, ch->mud_);
-    char_to_room(victim, ch->in_room);
+    char_to_room(victim, ch->in_room, MoveCause::Created);
 }
 
 void do_mpoload(Char *ch, ArgParser args) {
@@ -303,7 +303,7 @@ void do_mpgoto(Char *ch, ArgParser args) {
         stop_fighting(ch, true);
 
     char_from_room(ch);
-    char_to_room(ch, location);
+    char_to_room(ch, location, MoveCause::Transfer);
 }
 
 /* lets the mobile do a command at another location. Very useful */
@@ -377,7 +377,7 @@ void do_mptransfer(Char *ch, ArgParser args) {
         stop_fighting(victim, true);
 
     char_from_room(victim);
-    char_to_room(victim, location);
+    char_to_room(victim, location, MoveCause::Transfer);
 }
 
 /* lets the mobile force someone to do something.  must be mortal level

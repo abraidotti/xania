@@ -879,7 +879,7 @@ void reset_room(Room *room, Mud &mud) {
             if (previousRoom && check_enum_bit(previousRoom->room_flags, RoomFlag::PetShop))
                 set_enum_bit(mob->act, CharActFlag::Pet);
 
-            char_to_room(mob, room);
+            char_to_room(mob, room, MoveCause::Created);
             lastMob = mob;
             lastMobWasReset = true;
             break;

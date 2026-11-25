@@ -19,6 +19,7 @@
 #include "ArgParser.hpp"
 #include "Char.hpp"
 #include "Class.hpp"
+#include "Events.hpp"
 #include "Logging.hpp"
 #include "MProgImpl.hpp"
 #include "MProgTypeFlag.hpp"
@@ -33,12 +34,39 @@
 #include <fmt/ranges.h>
 
 #include <string>
+#include <utility>
 
 using namespace std::literals;
 
 [[nodiscard]] extern Char *get_char_world(Char *ch, std::string_view argument);
 
 namespace MProg {
+
+std::vector<EventBus::Subscription> listen(EventBus &bus) {
+    using namespace Events;
+    std::vector<EventBus::Subscription> subscriptions;
+    subscriptions.push_back(bus.on<CharArrived>("mob programs: entry, greet", [](const CharArrived &e) {
+        entry_trigger(e.ch);
+        greet_trigger(e.ch);
+    }));
+    subscriptions.push_back(bus.on<ActSeen>(
+        "mob programs: act", [](const ActSeen &e) { act_trigger(e.message, e.to, e.ch, e.obj, e.target); }));
+    subscriptions.push_back(
+        bus.on<CharSpoke>("mob programs: speech", [](const CharSpoke &e) { speech_trigger(e.message, e.ch); }));
+    subscriptions.push_back(bus.on<ObjectGiven>(
+        "mob programs: give", [](const ObjectGiven &e) { give_trigger(e.receiver, e.giver, e.obj); }));
+    subscriptions.push_back(bus.on<GoldGiven>(
+        "mob programs: bribe", [](const GoldGiven &e) { bribe_trigger(e.receiver, e.giver, e.amount); }));
+    subscriptions.push_back(bus.on<CombatRound>("mob programs: hitprcnt, fight", [](const CombatRound &e) {
+        hitprcnt_trigger(e.ch, e.victim);
+        fight_trigger(e.ch, e.victim);
+    }));
+    subscriptions.push_back(
+        bus.on<CharKilled>("mob programs: death", [](const CharKilled &e) { death_trigger(e.victim); }));
+    subscriptions.push_back(
+        bus.on<MobUpdate>("mob programs: random", [](const MobUpdate &e) { random_trigger(e.mob); }));
+    return subscriptions;
+}
 
 Target to_target(const Char *ch, const Object *obj) {
     if (ch)
@@ -78,6 +106,16 @@ void act_trigger(std::string_view buf, Char *mob, const Char *ch, const Object *
     if (mob->is_npc() && check_enum_bit(mob->mobIndex->progtypes, TypeFlag::Act)) {
         mob->mpact.emplace_back(std::string(buf), ch, obj, target);
     }
+}
+
+void run_queued_acts(Char *mob) {
+    // Take the queue first: the programs can act, and act_trigger() then appends to mob->mpact. Iterating mob->mpact
+    // itself read freed memory once an append reallocated it.
+    const auto queued = std::exchange(mob->mpact, {});
+    for (const auto &mpact : queued)
+        wordlist_check(mpact.act_message_trigger(), mob, mpact.character(), mpact.object(), mpact.target(),
+                       TypeFlag::Act);
+    mob->mpact.clear();
 }
 
 void bribe_trigger(Char *mob, Char *ch, int amount) {

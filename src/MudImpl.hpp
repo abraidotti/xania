@@ -6,7 +6,9 @@
 #pragma once
 
 #include "AreaList.hpp"
+#include "DeathCounter.hpp"
 #include "DescriptorList.hpp"
+#include "EventBus.hpp"
 #include "Help.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
@@ -33,6 +35,8 @@ public:
 
     Configuration &config() override;
     DescriptorList &descriptors() override;
+    EventBus &events() override;
+    DeathCounter &death_counter() override;
     Logger &logger() override;
     Interpreter &interpreter() override;
     Bans &bans() override;
@@ -79,6 +83,10 @@ private:
     bool check_playing(Descriptor *d, std::string_view name);
 
     Configuration config_;
+    // Deep enough that no chain of mob programs in the area files comes near it; see EventBus::dropped().
+    EventBus events_{16};
+    std::vector<EventBus::Subscription> listeners_;
+    DeathCounter death_counter_{events_};
     DescriptorList descriptors_;
     Logger logger_;
     Interpreter interpreter_;

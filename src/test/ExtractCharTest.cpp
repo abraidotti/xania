@@ -103,7 +103,7 @@ Test~
     SECTION("a command that moves the char still brings it back") {
         run_at(&imm, &there, [&] {
             char_from_room(&imm);
-            char_to_room(&imm, &elsewhere);
+            char_to_room(&imm, &elsewhere, MoveCause::Walk);
         });
 
         CHECK(imm.in_room == &home);

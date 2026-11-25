@@ -6,8 +6,11 @@
 
 #include "Act.hpp"
 #include "Char.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
 #include "Logging.hpp"
 #include "MProg.hpp"
+#include "Mud.hpp"
 #include "Note.hpp"
 #include "Object.hpp"
 #include "Pronouns.hpp"
@@ -195,7 +198,8 @@ void act(std::string_view format, const Char *ch, Act1Arg arg1, Act2Arg arg2, co
         to->send_to(formatted);
         if (mob_trig == MobTrig::Yes) {
             // TODO: heinous const_cast here. Safe, but annoying and worth unpicking deeper down.
-            MProg::act_trigger(formatted, const_cast<Char *>(to), ch, arg1_as_obj_ptr, mprog_target);
+            ch->mud_.events().emit(
+                Events::ActSeen{formatted, const_cast<Char *>(to), ch, arg1_as_obj_ptr, mprog_target});
         }
     }
 }

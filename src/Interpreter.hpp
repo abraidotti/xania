@@ -136,6 +136,8 @@ extern void do_lock(Char *ch, ArgParser args);
 extern void do_log(Char *ch, ArgParser args);
 extern void do_look(Char *ch, ArgParser args);
 extern void do_memory(Char *ch);
+extern void do_events(Char *ch);
+extern void do_deaths(Char *ch);
 
 /* for MOBProgs */
 

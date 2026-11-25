@@ -22,6 +22,7 @@
 /*************************************************************************/
 #pragma once
 
+#include "Events.hpp"
 #include "GenericList.hpp"
 #include "Materials.hpp"
 #include "Types.hpp"
@@ -59,7 +60,8 @@ void affect_strip(Char *ch, int sn);
 AFFECT_DATA *find_affect(Char *ch, int sn);
 void affect_join(Char *ch, const AFFECT_DATA &af);
 void char_from_room(Char *ch);
-void char_to_room(Char *ch, Room *room);
+// Puts ch in room, saying why (see MoveCause), and emits Events::CharEnteredRoom.
+void char_to_room(Char *ch, Room *room, MoveCause cause);
 void obj_to_char(Object *obj, Char *ch);
 void obj_from_char(Object *obj);
 int apply_ac(Object *obj, const Worn worn, const int type);

@@ -18,8 +18,10 @@
 #include "DamageTolerance.hpp"
 #include "DamageType.hpp"
 #include "Descriptor.hpp"
+#include "EventBus.hpp"
 #include "Interpreter.hpp"
 #include "Logging.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
 #include "ObjectIndex.hpp"
@@ -268,10 +270,54 @@ void char_from_room(Char *ch) {
     ch->in_room = nullptr;
 }
 
+namespace {
+
+// A plague carrier entering a room may infect the people in it.
+void spread_plague_on_entry(Char *ch) {
+    if (!ch->is_aff_plague())
+        return;
+    auto *existing_plague = ch->affected.find_by_skill(gsn_plague);
+    if (!existing_plague) {
+        clear_enum_bit(ch->affected_by, AffectFlag::Plague);
+        return;
+    }
+
+    if (existing_plague->level == 1)
+        return;
+
+    AFFECT_DATA plague;
+    plague.type = gsn_plague;
+    plague.level = existing_plague->level - 1;
+    plague.duration = number_range(1, 2 * plague.level);
+    plague.location = AffectLocation::Str;
+    plague.modifier = -5;
+    plague.bitvector = to_int(AffectFlag::Plague);
+
+    for (auto *vch : ch->in_room->people) {
+        const int save = [&]() -> int {
+            switch (check_damage_tolerance(vch, DamageType::Disease)) {
+            default:
+            case DamageTolerance::None: return existing_plague->level - 4;
+            case DamageTolerance::Immune: return 0;
+            case DamageTolerance::Resistant: return existing_plague->level - 8;
+            case DamageTolerance::Vulnerable: return existing_plague->level;
+            }
+        }();
+
+        if (save != 0 && !saves_spell(save, vch) && vch->is_mortal() && !vch->is_aff_plague() && number_bits(6) == 0) {
+            vch->send_line("You feel hot and feverish.");
+            act("$n shivers and looks very ill.", vch);
+            affect_join(vch, plague);
+        }
+    }
+}
+
+}
+
 /*
  * Move a char into a room.
  */
-void char_to_room(Char *ch, Room *room) {
+void char_to_room(Char *ch, Room *room, const MoveCause cause) {
     if (!room) {
         return;
     }
@@ -285,43 +331,8 @@ void char_to_room(Char *ch, Room *room) {
     if (auto *obj = get_eq_char(ch, Worn::Light); obj && obj->type == ObjectType::Light && obj->value[2] != 0)
         ++ch->in_room->light;
 
-    if (ch->is_aff_plague()) {
-        auto *existing_plague = ch->affected.find_by_skill(gsn_plague);
-        if (!existing_plague) {
-            clear_enum_bit(ch->affected_by, AffectFlag::Plague);
-            return;
-        }
-
-        if (existing_plague->level == 1)
-            return;
-
-        AFFECT_DATA plague;
-        plague.type = gsn_plague;
-        plague.level = existing_plague->level - 1;
-        plague.duration = number_range(1, 2 * plague.level);
-        plague.location = AffectLocation::Str;
-        plague.modifier = -5;
-        plague.bitvector = to_int(AffectFlag::Plague);
-
-        for (auto *vch : ch->in_room->people) {
-            const int save = [&]() -> int {
-                switch (check_damage_tolerance(vch, DamageType::Disease)) {
-                default:
-                case DamageTolerance::None: return existing_plague->level - 4;
-                case DamageTolerance::Immune: return 0;
-                case DamageTolerance::Resistant: return existing_plague->level - 8;
-                case DamageTolerance::Vulnerable: return existing_plague->level;
-                }
-            }();
-
-            if (save != 0 && !saves_spell(save, vch) && vch->is_mortal() && !vch->is_aff_plague()
-                && number_bits(6) == 0) {
-                vch->send_line("You feel hot and feverish.");
-                act("$n shivers and looks very ill.", vch);
-                affect_join(vch, plague);
-            }
-        }
-    }
+    spread_plague_on_entry(ch);
+    ch->mud_.events().emit(Events::CharEnteredRoom{ch, room, cause});
 }
 
 /*
@@ -612,7 +623,7 @@ void extract_char(Char *ch, bool delete_from_world) {
     char_from_room(ch);
 
     if (!delete_from_world) {
-        char_to_room(ch, get_room(Rooms::MidgaardAltar, ch->mud_.logger()));
+        char_to_room(ch, get_room(Rooms::MidgaardAltar, ch->mud_.logger()), MoveCause::Death);
         return;
     }
 
@@ -645,14 +656,14 @@ void extract_char(Char *ch, bool delete_from_world) {
 void run_at(Char *ch, Room *location, const std::function<void()> &command) {
     auto *original = ch->in_room;
     char_from_room(ch);
-    char_to_room(ch, location);
+    char_to_room(ch, location, MoveCause::Visit);
     command();
     // The command may have taken ch out of the world (at <room> quit, a mob killed there): ch no longer has a room,
     // and putting it back in one would leave a pointer to it there once collect_all_garbage() frees it.
     if (ch->extracted)
         return;
     char_from_room(ch);
-    char_to_room(ch, original);
+    char_to_room(ch, original, MoveCause::Visit);
 }
 
 // Find a char in the room.
