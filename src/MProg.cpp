@@ -33,6 +33,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <algorithm>
 #include <string>
 #include <utility>
 
@@ -106,6 +107,44 @@ void act_trigger(std::string_view buf, Char *mob, const Char *ch, const Object *
     if (mob->is_npc() && check_enum_bit(mob->mobIndex->progtypes, TypeFlag::Act)) {
         mob->mpact.emplace_back(std::string(buf), ch, obj, target);
     }
+}
+
+namespace {
+
+template <typename Pred>
+void forget_queued_acts_if(Pred refers) {
+    for (auto &&uch : char_list) {
+        // Null while collect_all_garbage() compacts char_list: ~Char extracts the objects it carries.
+        if (!uch)
+            continue;
+        auto &queue = uch->mpact;
+        if (std::ranges::none_of(queue, refers))
+            continue;
+        // MProgTriggerCtx has const members, so it can't be erased in place: keep a copy of the rest.
+        std::vector<MProgTriggerCtx> kept;
+        for (const auto &mpact : queue)
+            if (!refers(mpact))
+                kept.push_back(mpact);
+        queue = std::move(kept);
+    }
+}
+
+}
+
+void forget_queued_acts_about(const Char *ch) {
+    forget_queued_acts_if([ch](const MProgTriggerCtx &mpact) {
+        const auto target = mpact.target();
+        return mpact.character() == ch
+               || (std::holds_alternative<const Char *>(target) && std::get<const Char *>(target) == ch);
+    });
+}
+
+void forget_queued_acts_about(const Object *obj) {
+    forget_queued_acts_if([obj](const MProgTriggerCtx &mpact) {
+        const auto target = mpact.target();
+        return mpact.object() == obj
+               || (std::holds_alternative<const Object *>(target) && std::get<const Object *>(target) == obj);
+    });
 }
 
 void run_queued_acts(Char *mob) {

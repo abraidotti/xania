@@ -12,10 +12,16 @@
 #include "MProgTypeFlag.hpp"
 #include "MemFile.hpp"
 #include "MobIndexData.hpp"
+#include "Object.hpp"
+#include "ObjectIndex.hpp"
 #include "Room.hpp"
 #include "Socials.hpp"
 #include "common/BitOps.hpp"
+#include "db.h"
+#include "handler.hpp"
+#include "update.hpp"
 
+#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 
 #include "MockMud.hpp"
@@ -42,6 +48,37 @@ $n smiles at $r.
 
 #0
 )";
+
+MobIndexData load_orc_index() {
+    test::MemFile mob_file(R"mob(
+#13000
+orc~
+the orc shaman~
+~
+~
+orc~
+0 0 0 0
+0 0 1d6+1 1d6+1 1d1+1 blast
+0 0 0 0
+0 0 0 0
+stand stand male 200
+0 0 medium 0
+
+#0
+)mob");
+    return *MobIndexData::from_file(mob_file.file(), logger);
+}
+
+Char &add_mob(MobIndexData &mob_idx, std::string name, Room &room) {
+    auto &mob = *char_list.emplace_back(std::make_unique<Char>(mock_mud));
+    mob.name = name;
+    mob.short_descr = std::move(name);
+    mob.mobIndex = &mob_idx;
+    set_enum_bit(mob.act, CharActFlag::Npc);
+    mob.in_room = &room;
+    room.people.add_back(&mob);
+    return mob;
+}
 
 }
 
@@ -111,4 +148,52 @@ stand stand male 200
     room.people.remove(&bob);
     bob.desc = nullptr;
     bob_desc.character(nullptr);
+}
+
+TEST_CASE("queued acts about a char or object leaving the world are dropped") {
+    test::MemFile social_file(social_db);
+    socials.load(social_file.file(), logger);
+    ALLOW_CALL(mock_mud, descriptors()).LR_RETURN(descriptors);
+    ALLOW_CALL(mock_mud, logger()).LR_RETURN(logger);
+    ALLOW_CALL(mock_mud, interpreter()).LR_RETURN(interpreter);
+    ALLOW_CALL(mock_mud, socials()).LR_RETURN(socials);
+    auto orc_idx = load_orc_index();
+    // Its program names whoever it saw: $n reads the queued message's char.
+    orc_idx.mobprogs.push_back(MProg::Program{MProg::TypeFlag::Act, "smiles", {"smile $n"}});
+    set_enum_bit(orc_idx.progtypes, MProg::TypeFlag::Act);
+    auto goblin_idx = load_orc_index();
+    Room room{};
+    auto &orc = add_mob(orc_idx, "orc", room);
+    auto *goblin = &add_mob(goblin_idx, "goblin", room);
+
+    SECTION("a char") {
+        MProg::act_trigger("The goblin smiles happily.", &orc, goblin, nullptr, nullptr);
+        MProg::act_trigger("The wind howls.", &orc, nullptr, nullptr, nullptr);
+        MProg::act_trigger("Something looks at the goblin.", &orc, nullptr, nullptr, goblin);
+        extract_char(goblin, true);
+        collect_all_garbage(); // frees the goblin
+
+        // Only the message that isn't about the goblin is left. Before, the first one stayed, and running it read the
+        // freed goblin for $n.
+        CHECK(orc.mpact.size() == 1);
+        CHECK(orc.mpact[0].act_message_trigger() == "The wind howls.");
+        MProg::run_queued_acts(&orc);
+    }
+    SECTION("an object") {
+        ObjectIndex obj_index{};
+        Object dagger{&obj_index, logger};
+        MProg::act_trigger("The goblin drops a dagger.", &orc, goblin, &dagger, nullptr);
+        MProg::act_trigger("The goblin looks at a dagger.", &orc, goblin, nullptr, &dagger);
+        MProg::act_trigger("The goblin smiles happily.", &orc, goblin, nullptr, nullptr);
+        extract_obj(&dagger);
+        std::erase(reapable_objects, &dagger); // it's on the stack: don't let collect_all_garbage() see it
+
+        REQUIRE(orc.mpact.size() == 1);
+        CHECK(orc.mpact[0].act_message_trigger() == "The goblin smiles happily.");
+        orc.mpact.clear();
+    }
+    for (auto *person : room.people)
+        room.people.remove(person);
+    std::erase_if(reapable_chars, [](auto *) { return true; });
+    std::erase_if(char_list, [&](const auto &uch) { return uch.get() == &orc || uch.get() == goblin; });
 }
