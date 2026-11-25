@@ -187,6 +187,50 @@ TEST_CASE("event bus changes during a dispatch") {
         bus.emit(Arrived{1});
         CHECK(calls == std::vector<std::string>{"adder", "adder", "added"});
     }
+    SECTION("a listener subscribed during a dispatch is subscribed straight away") {
+        EventBus::Subscription added;
+        size_t count_inside = 0;
+        auto adder = bus.on<Arrived>("adder", [&](const Arrived &) {
+            added = bus.on<Arrived>(
+                "added", [&](const Arrived &) { calls.push_back("added"); }, -1);
+            count_inside = bus.listener_count<Arrived>();
+            CHECK(added.active());
+        });
+        bus.emit(Arrived{1});
+        CHECK(count_inside == 2);
+        adder.reset();
+        bus.emit(Arrived{1});
+        CHECK(calls == std::vector<std::string>{"added"});
+    }
+    SECTION("a listener unsubscribed during a dispatch is gone straight away, and removed after it") {
+        EventBus::Subscription other = bus.on<Arrived>("other", [&](const Arrived &) { calls.push_back("other"); });
+        size_t count_inside = 0;
+        auto remover = bus.on<Arrived>("remover", [&](const Arrived &) {
+            other.reset();
+            count_inside = bus.listener_count<Arrived>();
+        });
+        bus.emit(Arrived{1});
+        CHECK(count_inside == 1);
+        CHECK(bus.listener_count<Arrived>() == 1);
+        CHECK(bus.listeners() == std::vector<EventBus::ListenerInfo>{{"Arrived", "remover", 0}});
+    }
+    SECTION("a listener added inside a nested dispatch of the same event waits for the outer one to finish") {
+        EventBus::Subscription added;
+        bool nested = false;
+        auto outer = bus.on<Arrived>("outer", [&](const Arrived &e) {
+            calls.push_back("outer " + std::to_string(e.who));
+            if (!nested) {
+                nested = true;
+                added = bus.on<Arrived>("added",
+                                        [&](const Arrived &e2) { calls.push_back("added " + std::to_string(e2.who)); });
+                bus.emit(Arrived{2});
+            }
+        });
+        bus.emit(Arrived{1});
+        CHECK(calls == std::vector<std::string>{"outer 1", "outer 2"});
+        bus.emit(Arrived{3});
+        CHECK(calls == std::vector<std::string>{"outer 1", "outer 2", "outer 3", "added 3"});
+    }
 }
 
 TEST_CASE("event bus nesting") {

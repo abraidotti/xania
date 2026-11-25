@@ -46,7 +46,8 @@
 //
 // on() returns a Subscription, and the listener stays subscribed until that is destroyed or reset(). A listener may
 // unsubscribe itself or others while an event is being dispatched: a removed listener doesn't run again, even later in
-// the same dispatch. A listener subscribed during a dispatch first runs on the next emit().
+// the same dispatch. A listener subscribed during a dispatch is active straight away, but first runs once every
+// dispatch of that event in progress has finished. Dispatch doesn't allocate.
 
 template <typename E>
 concept Event = std::is_class_v<E> && requires {
@@ -123,8 +124,7 @@ public:
     [[nodiscard]] Subscription on(std::string name, Listener<E> listener, int priority = 0) {
         auto &channel = channel_for<E>();
         const auto id = ++last_id_;
-        channel.add(std::make_shared<typename Channel<E>::Entry>(
-            typename Channel<E>::Entry{id, priority, std::move(name), std::move(listener)}));
+        channel.add(typename Channel<E>::Entry{id, priority, std::move(name), std::move(listener)});
         return Subscription{channels_.at(std::type_index(typeid(E))), id};
     }
 
@@ -178,28 +178,52 @@ private:
             Listener<E> fn;
             bool live{true};
         };
-        // Sorted by priority, then by id (the order they subscribed).
-        std::vector<std::shared_ptr<Entry>> entries;
+        // Sorted by priority, then by id (the order they subscribed). While a dispatch runs, entries keeps its size, so
+        // dispatch can walk it in place without copying it: a new listener waits in pending, and a removed one is only
+        // marked dead. settle() catches up once the outermost dispatch of this channel ends.
+        std::vector<Entry> entries;
+        std::vector<Entry> pending;
+        int dispatching{};
 
-        void add(std::shared_ptr<Entry> entry) {
-            const auto pos = std::ranges::upper_bound(entries, entry->priority, std::less<>{},
-                                                      [](const auto &e) { return e->priority; });
+        void add(Entry entry) {
+            if (dispatching)
+                pending.push_back(std::move(entry));
+            else
+                insert_sorted(std::move(entry));
+        }
+        void insert_sorted(Entry entry) {
+            const auto pos = std::ranges::upper_bound(entries, entry.priority, std::less<>{}, &Entry::priority);
             entries.insert(pos, std::move(entry));
         }
+        void settle() {
+            std::erase_if(entries, [](const Entry &e) { return !e.live; });
+            for (auto &entry : std::exchange(pending, {}))
+                insert_sorted(std::move(entry));
+        }
         void remove(uint64_t id) override {
-            if (const auto it = std::ranges::find(entries, id, [](const auto &e) { return e->id; });
-                it != entries.end()) {
-                (*it)->live = false; // In case a dispatch in progress holds it.
+            if (std::erase_if(pending, [id](const Entry &e) { return e.id == id; }))
+                return;
+            const auto it = std::ranges::find(entries, id, &Entry::id);
+            if (it == entries.end())
+                return;
+            if (dispatching)
+                it->live = false;
+            else
                 entries.erase(it);
-            }
         }
         [[nodiscard]] bool contains(uint64_t id) const override {
-            return std::ranges::find(entries, id, [](const auto &e) { return e->id; }) != entries.end();
+            const auto it = std::ranges::find(entries, id, &Entry::id);
+            return (it != entries.end() && it->live) || std::ranges::find(pending, id, &Entry::id) != pending.end();
         }
-        [[nodiscard]] size_t size() const override { return entries.size(); }
+        [[nodiscard]] size_t size() const override {
+            return static_cast<size_t>(std::ranges::count_if(entries, &Entry::live)) + pending.size();
+        }
         void describe(std::vector<ListenerInfo> &out) const override {
             for (const auto &e : entries)
-                out.push_back({E::name, e->name, e->priority});
+                if (e.live)
+                    out.push_back({E::name, e.name, e.priority});
+            for (const auto &e : pending)
+                out.push_back({E::name, e.name, e.priority});
         }
     };
 
@@ -214,23 +238,32 @@ private:
     template <Event E, typename Arg>
     void dispatch(Arg &event) {
         const auto it = channels_.find(std::type_index(typeid(E)));
-        if (it == channels_.end() || it->second->size() == 0)
+        if (it == channels_.end())
+            return;
+        auto &channel = static_cast<Channel<E> &>(*it->second);
+        if (channel.entries.empty())
             return;
         if (depth_ >= max_depth_) {
             ++dropped_;
             return;
         }
-        // Dispatch over a copy, so listeners can subscribe and unsubscribe while it runs.
-        const auto snapshot = static_cast<Channel<E> &>(*it->second).entries;
-        struct DepthGuard {
+        struct Guard {
             int &depth;
-            explicit DepthGuard(int &d) : depth(++d) {}
-            ~DepthGuard() { --depth; }
-        } guard{depth_};
-        for (const auto &entry : snapshot) {
-            if (!entry->live)
+            Channel<E> &channel;
+            Guard(int &d, Channel<E> &c) : depth(d), channel(c) {
+                ++depth;
+                ++channel.dispatching;
+            }
+            ~Guard() {
+                --depth;
+                if (--channel.dispatching == 0)
+                    channel.settle();
+            }
+        } guard{depth_, channel};
+        for (auto &entry : channel.entries) {
+            if (!entry.live)
                 continue;
-            entry->fn(event);
+            entry.fn(event);
             if constexpr (BeforeEvent<E>) {
                 if (event.cancelled)
                     return;
