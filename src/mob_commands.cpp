@@ -323,21 +323,7 @@ void do_mpat(Char *ch, ArgParser args) {
         logger.bug("mpat: No such location from vnum {}.", ch->mobIndex->vnum);
         return;
     }
-    auto *original = ch->in_room;
-    char_from_room(ch);
-    char_to_room(ch, location);
-    ch->mud_.interpreter().interpret(ch, args.remaining());
-    /*
-     * See if 'ch' still exists before continuing!
-     * Handles 'at XXXX quit' case.
-     */
-    for (auto &&wch : char_list) {
-        if (wch.get() == ch) {
-            char_from_room(ch);
-            char_to_room(ch, original);
-            break;
-        }
-    }
+    run_at(ch, location, [&] { ch->mud_.interpreter().interpret(ch, args.remaining()); });
 }
 
 /* lets the mobile transfer people.  the all argument transfers

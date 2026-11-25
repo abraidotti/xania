@@ -124,6 +124,9 @@ struct Char {
     Position default_pos{};
     unsigned long extra_flags{};
     std::vector<MProg::MProgTriggerCtx> mpact{};
+    // Set by extract_char(ch, true) when the char leaves the world (quit, purge, an NPC's death). It stays in char_list
+    // until collect_all_garbage() frees it at the end of the pulse, so being in char_list doesn't mean it's alive.
+    bool extracted{};
 
     // Accepts a login time so that all callers can pass the Mud's current time explicitly, rather than having the
     // constructor invoke mud.current_time(), which complicates tests/mocks. It uses a default value to simplify things

@@ -638,7 +638,21 @@ void extract_char(Char *ch, bool delete_from_world) {
         ch->desc = nullptr;
     }
 
+    ch->extracted = true;
     reapable_chars.push_back(ch); // See collect_all_garbage()
+}
+
+void run_at(Char *ch, Room *location, const std::function<void()> &command) {
+    auto *original = ch->in_room;
+    char_from_room(ch);
+    char_to_room(ch, location);
+    command();
+    // The command may have taken ch out of the world (at <room> quit, a mob killed there): ch no longer has a room,
+    // and putting it back in one would leave a pointer to it there once collect_all_garbage() frees it.
+    if (ch->extracted)
+        return;
+    char_from_room(ch);
+    char_to_room(ch, original);
 }
 
 // Find a char in the room.
