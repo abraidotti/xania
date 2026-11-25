@@ -11,6 +11,9 @@
 #include "CharActFlag.hpp"
 #include "DamageTolerance.hpp"
 #include "DamageType.hpp"
+#include "EventBus.hpp"
+#include "Events.hpp"
+#include "Mud.hpp"
 #include "Object.hpp"
 #include "ObjectType.hpp"
 #include "Room.hpp"
@@ -59,6 +62,7 @@ void tornado_teleport(Char *ch, Char *victim) {
         fallen_off_mount(ch);
     } /* end ride check */
     look_auto(victim);
+    ch->mud_.events().emit(Events::CharArrived{victim, MoveCause::Magic});
 }
 
 void tornado_dam(Char *ch, Char *victim, int level) {

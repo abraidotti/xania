@@ -236,7 +236,7 @@ void move_char(Char *ch, Direction direction) {
         }
     }
 
-    ch->mud_.events().emit(Events::CharArrived{ch});
+    ch->mud_.events().emit(Events::CharArrived{ch, MoveCause::Walk});
 }
 
 void do_enter(Char *ch, std::string_view argument) {
@@ -335,7 +335,7 @@ void do_enter(Char *ch, std::string_view argument) {
                         }
                     }
 
-                    ch->mud_.events().emit(Events::CharArrived{ch});
+                    ch->mud_.events().emit(Events::CharArrived{ch, MoveCause::Portal});
 
                     return;
                 } else {
@@ -1004,6 +1004,7 @@ void do_recall(Char *ch, ArgParser args) {
         act("$n appears in the room.", ch);
 
     look_auto(ch);
+    ch->mud_.events().emit(Events::CharArrived{ch, MoveCause::Recall});
 
     if (ch->is_npc() && ch->ridden_by) {
         act("$n falls to the ground.", ch->ridden_by);
