@@ -68,7 +68,7 @@ human~
 T N 300 0
 52 8 1d1+999 1d1+249 3d6+30 smash
 -45 -46 -41 -25
-CDEFIJKNOU 0 0 0
+CDEFIJKNU 0 0 0
 stand stand male 0
 0 0 medium 0
 
@@ -182,7 +182,7 @@ human~
 F DKNZ -1000 0
 70 10 1d1+4199 1d1+299 10d6+20 wrath
 -62 -61 -63 -55
-FGO BIJKO MPQS HNY
+FG BIJKO MPQS HNY
 stand stand neutral 0
 0 0 large 0
 
@@ -214,7 +214,7 @@ human~
 BTaa CDEFHNV 1000 0
 85 15 100d4+6500 1d1+499 5d6+43 beating
 -68 -66 -67 -55
-CDEFHIKLNOQ MN GJK E
+CDEFHIKLNQ MN GJK E
 stand stand male 0
 0 0 medium 0
 
@@ -230,7 +230,7 @@ elf~
 FRT HN -1000 0
 85 15 100d4+6500 1d1+1299 5d6+43 wrath
 -65 -67 -68 -57
-BCDEFHIKNO BLPQ CD N
+BCDEFHIKN BLPQ CD N
 stand stand male 0
 0 0 medium 0
 
@@ -280,7 +280,7 @@ elf~
 MBTL CEHJNTV 500 0
 105 20 10d20+10000 1d1+1999 8d8+52 divine
 -95 -86 -93 -84
-CDEFGHIKNOR BHLQ CKNO E
+CDEFGHIKNR BHLQ CKNO E
 stand stand male 0
 0 0 large 0
 

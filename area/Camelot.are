@@ -81,7 +81,7 @@ human~
 GT CDEFHTVZaacc 950 0
 95 48 15d20+7500 6d4+500 10d9+48 pound
 -61 -61 -61 -46
-CDEFGIKLOT AB DEJMNOQ HI
+CDEFGIKLT AB DEJMNOQ HI
 stand stand male 0
 0 0 large 0
 #506
@@ -126,7 +126,7 @@ human~
 BCGHQ CHVZaacc 1000 0
 72 35 12d10+4500 10d6+700 7d10+35 divine
 -50 -50 -50 -43
-ACDEFGKNOQ AB CJKQ D
+ACDEFGKNQ AB CJKQ D
 stand rest male 0
 0 0 medium 0
 #509

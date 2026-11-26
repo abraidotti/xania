@@ -2330,7 +2330,7 @@ BGLT DFHLN 500 0
 -69 -65 -68 -45
 CMO AB 0 0
 stand stand neutral 30
-0 0 giant 0
+0 Q giant 0
 
 #27229
 cook~

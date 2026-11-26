@@ -88,7 +88,7 @@ Droid~
 TUG H 0 0
 32 0 2d100+800 1d1+99 2d6+10 blast
 -30 -30 -30 65
-CO PQLBN HI J
+C PQLBN HI J
 stand stand neutral 0
 0 0 small 0
  
@@ -105,7 +105,7 @@ Droid~
 BGTU HV 0 0
 44 0 4d200+1100 1d1+99 15d10+30 blast
 -35 -35 -35 35
-COFE PQLBN HI J
+CFE PQLBN HI J
 stand stand neutral 0
 0 0 medium 0
  
@@ -122,7 +122,7 @@ Droid~
 GT HV 0 0
 75 0 20d100+4000 1d1+99 10d10+50 blast
 -55 -55 -55 -15
-CDEFHIJKO BPQL CHIK J
+CDEFHIJK BPQL CHIK J
 stand stand neutral 0
 0 0 large 0
  
@@ -138,7 +138,7 @@ Human~
 CGHTR H 400 0
 40 0 10d50+900 1d1+99 2d10+10 blast
 -35 -35 -35 -15
-EFIKOU R EFG 0
+EFIKU R EFG 0
 stand stand male 300
 0 0 medium 0
  
@@ -154,7 +154,7 @@ Human~
 CGHTR H 400 0
 50 0 10d50+1000 1d1+99 2d10+30 blast
 -35 -35 -35 -15
-EFIKOU R EFG 0
+EFIKU R EFG 0
 stand stand female 300
 0 0 medium 0
  
@@ -170,7 +170,7 @@ human~
 GHST HNV 500 0
 55 0 20d100+1000 1d1+99 4d4+40 blast
 -40 -40 -40 -15
-CDEFHO K PS 0
+CDEFH K PS 0
 stand stand male 500
 0 0 medium 0
  
@@ -187,7 +187,7 @@ human~
 BGHRT HN 500 0
 65 0 15d100+1500 1d1+99 10d10+20 pound
 -30 -30 -30 -24
-CDEFIKNO QA BCL 0
+CDEFIKN QA BCL 0
 stand stand neutral 300
 0 0 small 0
  
@@ -203,7 +203,7 @@ human~
 BGRT HN 700 0
 73 0 10d100+2000 1d1+99 10d10+20 pound
 -27 -27 -27 -20
-CDEFGIKNO PQ CB 0
+CDEFGIKN PQ CB 0
 stand stand male 200
 0 0 medium 0
  
@@ -254,7 +254,7 @@ human~
 CGHRST HPQV -1000 0
 55 0 20d100+1000 1d1+99 4d4+40 pound
 -40 -40 -40 -40
-BCDEFHIJKO ABP K E
+BCDEFHIJK ABP K E
 stand stand male 5000
 0 0 medium 0
  
@@ -271,7 +271,7 @@ human~
 GT HJDF 900 0
 80 0 10d100+2500 1d1+99 5d6+30 blast
 -50 -50 -50 -23
-ABCDEFHIJKOU AB D N
+ABCDEFHIJKU AB D N
 stand stand male 3000
 0 0 large 0
  
@@ -288,7 +288,7 @@ human~
 GFT HJDF -300 0
 70 0 10d100+2000 1d1+99 6d6+40 blast
 -50 -50 -50 -23
-ABCEFHIJKOP AB D L
+ABCEFHIJKP AB D L
 stand stand male 3000
 0 0 large 0
  
@@ -305,7 +305,7 @@ human~
 GCHRT HNTV 0 0
 100 0 30d100+7000 1d1+999 10d10+150 blast
 -95 -95 -95 -35
-CDEFHIJKO ABK D HIP
+CDEFHIJK ABK D HIP
 stand stand male 10000
 0 0 medium 0
  
@@ -322,7 +322,7 @@ human~
 GT HTV -1000 0
 85 0 40d100+2000 1d1+499 5d10+70 hit
 -50 -50 -50 -25
-CDEFHIJKO AB D HI
+CDEFHIJK AB D HI
 stand stand male 10000
 0 0 small 0
  
@@ -338,7 +338,7 @@ human~
 CFGRT HVPQ -1000 0
 95 20 40d100+6000 1d1+899 10d10+120 divine
 -85 -85 -85 -35
-ABCDEFHIJKOQ AB P I
+ABCDEFHIJKQ AB P I
 stand stand neutral 10000
 0 0 huge 0
  
@@ -388,7 +388,7 @@ human~
 B H -200 0
 90 0 1d1+10000 1d1+100 1d1+100 blast
 -915 -915 -915 -315
-NO AB K D
+N AB K D
 stand stand male 0
 0 0 small 0
  
@@ -403,7 +403,7 @@ human~
 B H -200 0
 90 0 1d1+10000 1d1+100 1d1+100 blast
 -915 -915 -915 -315
-NO AB K D
+N AB K D
 stand stand male 0
 0 0 small 0
  
@@ -419,7 +419,7 @@ human~
 B H -200 0
 90 0 1d1+10000 1d1+100 1d1+100 blast
 -915 -915 -915 -315
-NO AB K D
+N AB K D
 stand stand male 0
 0 0 small 0
  
@@ -434,7 +434,7 @@ human~
 B H -200 0
 90 0 1d1+10000 1d1+100 1d1+100 blast
 -915 -915 -915 -315
-NO AB K 0
+N AB K 0
 stand stand male 0
 0 0 small 0
  
@@ -458,7 +458,7 @@ human~
 BV HBQP 1000 0
 90 0 1d1+29999 1d1+29999 1d1+100 blast
 -915 -915 -915 -315
-NO ABCD 0 0
+N ABCD 0 0
 stand stand female 1000
 0 0 small 0
 

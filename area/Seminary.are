@@ -2802,7 +2802,7 @@ BCFT CV -900 0
 -32 -32 -32 -32
 DEFIMN 0 B 0
 stand stand neutral 499
-0 0 huge 0
+0 Q huge 0
 
 #27006
 Smokey Joe~
@@ -2884,7 +2884,7 @@ dragon~
 BCGQRTL CDEFJNUV -980 0
 80 40 3d6+5945 1d1+1120 8d10+40 acbite
 -45 -45 -45 -45
-CDEFHIJKMOR KL BR F
+CDEFHIJKMR KL BR F
 stand stand male 999
 0 0 huge 0
 
@@ -2901,7 +2901,7 @@ giant~
 BCGRTL DHNTUV 1000 0
 80 40 3d6+6200 1d1+1120 8d10+40 crush
 -45 -45 -45 -45
-DEKNOR AQLB CD 0
+DEKNR AQLB CD 0
 sit sit male 5000
 0 0 giant 0
 
@@ -2918,7 +2918,7 @@ giant~
 BQ DNPU 0 0
 78 39 2d6+4320 1d1+1014 9d9+39 divine
 -42 -42 -42 -42
-BDKOU L N EF
+BDKU L N EF
 stand stand neutral 0
 0 0 giant 0
 
@@ -3018,7 +3018,7 @@ unique~
 CFGRST Na -990 0
 48 24 3d6+2230 1d1+720 8d6+24 chomp
 -34 -34 -34 -34
-FHOU A 0 L
+FHU A 0 L
 stand stand male 2500
 0 0 huge 0
 
@@ -3052,7 +3052,7 @@ dragon~
 BGQRTL DEHJUV -1000 0
 95 46 3d6+7610 1d1+1235 9d11+46 acbite
 -51 -51 -51 -51
-BCEFHIJKMNO AP Q HY
+BCEFHIJKMN AP Q HY
 stand stand male 20000
 0 0 large 0
 
@@ -3085,7 +3085,7 @@ unique~
 BCRO NTX -900 0
 91 45 1d6+7695 1d1+1365 10d9+45 suction
 -48 -48 -48 -48
-FMNU QL K G
+FNU QL K G
 stand stand neutral 1246
 0 0 large 0
 
@@ -3135,7 +3135,7 @@ human~
 MBGJKQRSTVabb CDEFHJNTUV 1000 0
 147 90 3d6+25146 1d1+12205 20d20+90 divine
 -64 -64 -64 -43
-BCEFHIJKLNO ABCDEFGHIJKLMNOPQRS 0 0
+BCEFHIJKLN ABCDEFGHIJKLMNOPQRS 0 0
 stand stand male 0
 0 0 huge 0
 
@@ -3247,7 +3247,7 @@ unique~
 BGT N -900 0
 54 27 3d6+3060 1d1+594 5d11+27 blast
 -36 -36 -36 -36
-KOQU A 0 0
+KQU A 0 0
 stand stand neutral 250
 0 0 large 0
 
@@ -3279,7 +3279,7 @@ human~
 GHT N 0 0
 65 32 3d6+3410 1d1+715 7d10+32 crush
 -40 -40 -40 -40
-IKNOU 0 I F
+IKNU 0 I F
 stand stand male 290
 0 0 large 0
 
@@ -3326,9 +3326,9 @@ unique~
 BFGRT HJNVbb -900 0
 65 35 3d6+5300 1d1+975 9d8+35 shbite
 -39 -39 -39 -39
-DHMOP AIR 0 H
+DHMP AIR 0 H
 stand stand neutral 0
-0 0 large 0
+0 Q large 0
 
 #27038
 historian aged~

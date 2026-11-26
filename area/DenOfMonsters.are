@@ -51,7 +51,7 @@ BFT DFNPQVb -1000 0
 -58 -58 -58 -36
 CDEFHKMR ABER 0 HO
 stand stand neutral 0
-0 0 small 0
+0 Q small 0
 
 #18103
 Pirhana Fish Monster~
@@ -66,7 +66,7 @@ BFT DFNPQVb -1000 0
 -55 -55 -55 -55
 DEFHKMR ABER 0 HO
 stand stand neutral 0
-0 0 small 0
+0 Q small 0
 
 #18104
 Orca Monster~
@@ -84,7 +84,7 @@ BFT DFNPQVbc -1000 0
 -60 -60 -60 -45
 CDEFHKMR ABELR JKQ HO
 stand stand neutral 0
-0 0 large 0
+0 Q large 0
 
 #18105
 CREATURE BLACK LAGOON Monster~
@@ -115,7 +115,7 @@ BCFT DFHNPQTVb -1000 0
 -75 -75 -75 -55
 ACDEFHIKMNR ABLR LK EHNO
 stand stand male 0
-0 0 giant 0
+0 Q giant 0
 
 #18107
 Igor Monster~
@@ -307,7 +307,7 @@ BFT FHNPQT -1000 0
 -65 -65 -65 -45
 DEFKMNR ABL K HIO
 stand stand female 10000
-0 0 medium 0
+0 Q medium 0
 
 #18119
 Chuckie Doll Monster~

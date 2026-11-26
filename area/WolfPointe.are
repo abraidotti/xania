@@ -34,7 +34,7 @@ human~
 BV 0 0 0
 50 25 1d1+2499 1d1+199 10d10+25 digestion
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand male 0
 0 0 large 0
 #10053
@@ -50,7 +50,7 @@ human~
 BV 0 0 0
 50 25 1d1+2499 1d1+199 10d10+25 digestion
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand male 0
 0 0 large 0
 #10054
@@ -65,7 +65,7 @@ human~
 BV 0 0 0
 50 24 1d1+2499 1d1+199 10d10+19 cleave
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand male 0
 0 0 large 0
 #10055
@@ -80,7 +80,7 @@ human~
 BV 0 0 0
 50 30 1d1+2499 1d1+199 10d10+30 beating
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand male 20000
 0 0 large 0
 #10056
@@ -95,7 +95,7 @@ human~
 BV 0 0 0
 50 30 1d1+2499 1d1+199 10d10+30 beating
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand male 20000
 0 0 large 0
 #10057
@@ -110,7 +110,7 @@ human~
 BV 0 0 0
 50 30 1d1+2499 1d1+199 10d10+30 bite
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand male 0
 0 0 large 0
 #10058
@@ -126,7 +126,7 @@ human~
 CGV 0 0 0
 50 30 1d1+2499 1d1+199 5d10+30 magic
 -35 -35 -35 -35
-CDEFKO ABCDLQ BCDLQ 0 
+CDEFK ABCDLQ BCDLQ 0
 stand stand female 0
 0 0 medium 0
 #10059
@@ -142,7 +142,7 @@ human~
 BVQ DFHJN 0 0
 50 25 1d1+3499 1d1+199 5d10+25 divine
 -35 -35 -35 -35
-CDEFHKON ABCDLQ BCDLQ 0 
+CDEFHKN ABCDLQ BCDLQ 0
 stand stand male 0
 0 0 large 0
 #10060

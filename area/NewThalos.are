@@ -6232,9 +6232,9 @@ unique~
 Id N 0 0
 40 3 1d1+1463 1d1+350 6d6+20 crush
 -35 -35 -35 -15
-CMOFENU 0 0 0
+CMFENU 0 0 0
 stand stand female 2074
-0 0 large 0
+0 Q large 0
 
 #9595
 mare~
@@ -6247,9 +6247,9 @@ unique~
 Id N 0 0
 30 3 1d1+1027 1d1+250 5d5+15 charge
 -30 -30 -30 -15
-CMOFENU 0 0 0
+CMFENU 0 0 0
 stand stand female 1557
-0 0 large 0
+0 Q large 0
 
 #9596
 cart horse~
@@ -6262,9 +6262,9 @@ unique~
 Id N 0 0
 20 3 1d1+580 1d1+200 4d5+10 bite
 -25 -25 -25 -15
-CMOFENU 0 0 0
+CMFENU 0 0 0
 stand stand male 1012
-0 0 large 0
+0 Q large 0
 
 #9597
 war horse~
@@ -6280,9 +6280,9 @@ unique~
 Id N 0 0
 50 3 1d1+2035 1d1+570 7d7+25 pound
 -45 -45 -45 -15
-CMOIFENU 0 0 0
+CMIFENU 0 0 0
 stand stand male 2579
-0 0 large 0
+0 Q large 0
 
 #9598
 pony~
@@ -6297,9 +6297,9 @@ unique~
 Id N 0 0
 10 3 1d1+230 1d1+100 3d3+5 chomp
 -20 -20 -20 -15
-CMONFEU 0 0 0
+CMNFEU 0 0 0
 stand stand female 404
-0 0 medium 0
+0 Q medium 0
 
 #9599
 horse seller~
