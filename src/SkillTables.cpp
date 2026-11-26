@@ -2692,6 +2692,44 @@ const struct skill_type skill_table[MAX_SKILL] = {
         12,
         {1, 1, 1, 1},
         {2, 2, 2, 2},
+    },
+
+    /* Mob-only attacks: no class can learn them. They're at the end so no existing skill's number changes. */
+
+    {
+        "tail",
+        spell_null,
+        &gsn_tail,
+        "tail",
+        "!Tail!",
+        nullptr,
+        nullptr,
+        0,
+        Target::Ignore,
+        Position::Type::Fighting,
+        SkillSlot(0),
+        0,
+        24,
+        {0, 0, 0, 0},
+        {SkillRatingUnattainable, SkillRatingUnattainable, SkillRatingUnattainable, SkillRatingUnattainable},
+    },
+
+    {
+        "crush",
+        spell_null,
+        &gsn_crush,
+        "crush",
+        "!Crush!",
+        nullptr,
+        nullptr,
+        0,
+        Target::Ignore,
+        Position::Type::Fighting,
+        SkillSlot(0),
+        0,
+        24,
+        {0, 0, 0, 0},
+        {SkillRatingUnattainable, SkillRatingUnattainable, SkillRatingUnattainable, SkillRatingUnattainable},
     }
 
     /* commented out for time being --Fara

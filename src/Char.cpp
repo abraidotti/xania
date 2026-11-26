@@ -259,6 +259,12 @@ int Char::get_skill(int skill_number) const {
         else if (skill_number == gsn_trip && check_enum_bit(off_flags, OffensiveFlag::Trip))
             skill = std::max(30, level / 3);
 
+        else if (skill_number == gsn_tail && check_enum_bit(off_flags, OffensiveFlag::Tail))
+            skill = std::max(30, level / 3);
+
+        else if (skill_number == gsn_crush && check_enum_bit(off_flags, OffensiveFlag::Crush))
+            skill = std::max(30, level / 3);
+
         else if (skill_number == gsn_bash && check_enum_bit(off_flags, OffensiveFlag::Bash))
             skill = std::max(30, level / 3);
 

@@ -150,6 +150,8 @@ sh_int gsn_wands;
 sh_int gsn_recall;
 
 sh_int gsn_headbutt;
+sh_int gsn_tail;
+sh_int gsn_crush;
 sh_int gsn_ride;
 sh_int gsn_throw;
 

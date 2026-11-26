@@ -64,6 +64,8 @@ extern sh_int gsn_wands;
 extern sh_int gsn_recall;
 
 extern sh_int gsn_headbutt;
+extern sh_int gsn_tail;
+extern sh_int gsn_crush;
 extern sh_int gsn_ride;
 extern sh_int gsn_throw;
 extern sh_int gsn_octarine_fire;

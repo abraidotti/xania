@@ -28,6 +28,7 @@
 #include "Logging.hpp"
 #include "MProg.hpp"
 #include "Materials.hpp"
+#include "MobAttacks.hpp"
 #include "MorphologyFlag.hpp"
 #include "Object.hpp"
 #include "ObjectExtraFlag.hpp"
@@ -225,6 +226,65 @@ int calc_max_bash_damage(const BodySize attacker_size, const int chance) {
 // Calculates the max damage the trip skill may do based on the victim's size.
 int calc_max_trip_damage(const BodySize victim_size) { return 2 + 2 * magic_enum::enum_integer<BodySize>(victim_size); }
 
+// One lash of a mob's tail at one victim, with the given chance to hit. A hit can also knock the victim down.
+void tail_lash(Char *ch, Char *victim, const int chance) {
+    if (number_percent() >= chance) {
+        damage(ch, victim, 0, &skill_table[gsn_tail], DamageType::Bash);
+        return;
+    }
+    if (MobAttacks::can_knock_down(*ch, *victim)) {
+        act("$n sweeps you off your feet with $s tail!", ch, nullptr, victim, To::Vict);
+        act("You sweep $N off $S feet with your tail!", ch, nullptr, victim, To::Char);
+        act("$n sweeps $N off $S feet with $s tail.", ch, nullptr, victim, To::NotVict);
+        victim->wait_state(2 * PULSE_VIOLENCE);
+        victim->position = Position::Type::Resting;
+        if (victim->ridden_by != nullptr) {
+            thrown_off(victim->ridden_by, victim);
+        }
+    }
+    damage(ch, victim, number_range(2, MobAttacks::max_damage(ch->body_size, chance)), &skill_table[gsn_tail],
+           DamageType::Bash);
+}
+
+// A mob sweeps its tail at the victim it's fighting. Everyone else in the room who is fighting the mob may be caught by
+// the same sweep, at a smaller chance. Bystanders, and characters fighting someone else, never are.
+void mob_tail(Char *ch, Char *victim) {
+    const auto skill = ch->get_skill(gsn_tail);
+    if (skill == 0 || !MobAttacks::has_tail(*ch))
+        return;
+    ch->wait_state(skill_table[gsn_tail].beats);
+    tail_lash(ch, victim, MobAttacks::tail_chance(*ch, *victim, skill));
+    // A character killed by the sweep leaves the room but isn't freed until the end of the pulse, and the people list
+    // is safe to change while iterating over it.
+    for (auto *vch : ch->in_room->people) {
+        if (!ch->in_room)
+            break;
+        if (vch == victim || vch == ch || vch->fighting != ch)
+            continue;
+        tail_lash(ch, vch, MobAttacks::sweep_chance(MobAttacks::tail_chance(*ch, *vch, skill)));
+    }
+}
+
+// A mob crushes the victim it's fighting (a hug, a coil or a trample), doing bash's damage and pinning the victim
+// for as long as a bash would. It can't get a grip on a victim more than one size bigger than itself.
+void mob_crush(Char *ch, Char *victim) {
+    const auto skill = ch->get_skill(gsn_crush);
+    if (skill == 0 || !MobAttacks::can_crush(*ch, *victim))
+        return;
+    ch->wait_state(skill_table[gsn_crush].beats);
+    const auto chance = MobAttacks::crush_chance(*ch, *victim, skill);
+    if (number_percent() >= chance) {
+        damage(ch, victim, 0, &skill_table[gsn_crush], DamageType::Bash);
+        return;
+    }
+    act("$n crushes you, pinning you in place!", ch, nullptr, victim, To::Vict);
+    act("You crush $N, pinning $M in place!", ch, nullptr, victim, To::Char);
+    act("$n crushes $N, pinning $M in place.", ch, nullptr, victim, To::NotVict);
+    victim->wait_state(3 * PULSE_VIOLENCE);
+    damage(ch, victim, number_range(2, MobAttacks::max_damage(ch->body_size, chance)), &skill_table[gsn_crush],
+           DamageType::Bash);
+}
+
 }
 
 std::string describe_fight_condition(const Char &victim) {
@@ -387,9 +447,8 @@ void mob_hit(Char *ch, Char *victim, const skill_type *opt_skill) {
         break;
 
     case (5):
-        if (check_enum_bit(ch->off_flags, OffensiveFlag::Tail)) {
-            /* do_tail(ch,"") */;
-        }
+        if (check_enum_bit(ch->off_flags, OffensiveFlag::Tail))
+            mob_tail(ch, victim);
         break;
 
     case (6):
@@ -398,9 +457,8 @@ void mob_hit(Char *ch, Char *victim, const skill_type *opt_skill) {
         break;
 
     case (7):
-        if (check_enum_bit(ch->off_flags, OffensiveFlag::Crush)) {
-            /* do_crush(ch,"") */;
-        }
+        if (check_enum_bit(ch->off_flags, OffensiveFlag::Crush))
+            mob_crush(ch, victim);
         break;
     }
 }
